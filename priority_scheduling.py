@@ -12,7 +12,7 @@ class PrioritySchedulingApp:
 
     def create_widgets(self):
         """Create GUI widgets."""
-        # Main frame
+ 
         main_frame = ttk.Frame(self.root, padding="10")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
 
@@ -23,12 +23,11 @@ class PrioritySchedulingApp:
         self.num_processes_entry.grid(row=0, column=1, sticky=tk.W, pady=5)
         ttk.Button(main_frame, text="Set Processes", command=self.set_processes).grid(row=0, column=2, padx=5, pady=5)
 
-        # Process input frame
+
         self.input_frame = ttk.LabelFrame(main_frame, text="Process Details", padding="5")
         self.input_frame.grid(row=1, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=10)
         self.process_entries = []
 
-        # Results table
         self.results_frame = ttk.LabelFrame(main_frame, text="Results", padding="5")
         self.results_frame.grid(row=2, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=10)
         self.results_tree = ttk.Treeview(self.results_frame, columns=(
@@ -52,7 +51,7 @@ class PrioritySchedulingApp:
         scrollbar.grid(row=0, column=1, sticky=(tk.N, tk.S))
         self.results_tree.configure(yscrollcommand=scrollbar.set)
 
-        # Averages
+
         self.avg_frame = ttk.LabelFrame(main_frame, text="Averages", padding="5")
         self.avg_frame.grid(row=3, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=10)
         self.avg_waiting_label = ttk.Label(self.avg_frame, text="Avg Waiting Time: N/A")
@@ -71,7 +70,7 @@ class PrioritySchedulingApp:
         self.gantt_scroll.grid(row=1, column=0, sticky=(tk.W, tk.E))
         self.gantt_canvas.configure(xscrollcommand=self.gantt_scroll.set)
 
-        # Run simulation button
+
         ttk.Button(main_frame, text="Run Simulation", command=self.run_simulation).grid(row=5, column=0, columnspan=3, pady=10)
 
     def validate_number(self, value):
@@ -92,13 +91,13 @@ class PrioritySchedulingApp:
             messagebox.showerror("Error", "Please enter a valid positive integer for number of processes.")
             return
 
-        # Clear previous entries
+
         for widget in self.input_frame.winfo_children():
             widget.destroy()
         self.process_entries = []
         self.processes = []
 
-        # Create input fields
+ 
         ttk.Label(self.input_frame, text="PID").grid(row=0, column=0, padx=5, pady=5)
         ttk.Label(self.input_frame, text="Arrival Time").grid(row=0, column=1, padx=5, pady=5)
         ttk.Label(self.input_frame, text="Burst Time").grid(row=0, column=2, padx=5, pady=5)
@@ -143,7 +142,6 @@ class PrioritySchedulingApp:
             messagebox.showerror("Error", "No processes to simulate.")
             return
 
-        # Priority Scheduling (Non-Preemptive)
         current_time = 0
         completed = []
         gantt = []
@@ -151,7 +149,7 @@ class PrioritySchedulingApp:
         first_run = defaultdict(lambda: None)
 
         while len(completed) < len(self.processes):
-            # Add newly arrived processes to ready queue
+      
             for p in self.processes:
                 if p["arrival"] <= current_time and p not in completed and p not in ready_queue:
                     ready_queue.append(p)
@@ -167,7 +165,7 @@ class PrioritySchedulingApp:
                 current_process["completion"] = current_time
                 completed.append(current_process)
             else:
-                # No process ready, advance time
+           
                 current_time += 1
 
         # Calculate times
@@ -176,7 +174,7 @@ class PrioritySchedulingApp:
             p["turnaround"] = p["completion"] - p["arrival"]
             p["waiting"] = p["turnaround"] - p["burst"]
 
-        # Update results table
+
         self.results_tree.delete(*self.results_tree.get_children())
         for p in completed:
             self.results_tree.insert("", tk.END, values=(
@@ -184,7 +182,7 @@ class PrioritySchedulingApp:
                 p["waiting"], p["turnaround"], p["response"]
             ))
 
-        # Calculate averages
+
         avg_waiting = sum(p["waiting"] for p in completed) / len(completed)
         avg_turnaround = sum(p["turnaround"] for p in completed) / len(completed)
         avg_response = sum(p["response"] for p in completed) / len(completed)
@@ -192,7 +190,7 @@ class PrioritySchedulingApp:
         self.avg_turnaround_label.config(text=f"Avg Turnaround Time: {avg_turnaround:.2f}")
         self.avg_response_label.config(text=f"Avg Response Time: {avg_response:.2f}")
 
-        # Draw Gantt chart
+      
         self.gantt_canvas.delete("all")
         max_time = max(entry[2] for entry in gantt)
         scale = 500 / max_time if max_time > 0 else 1
