@@ -9,7 +9,7 @@
 #define MAX_GROUPS 50
 #define DATA_FILE "users_data.txt"
 
-// Structures
+
 typedef struct {
     char username[MAX_STR];
     char name[MAX_STR];
@@ -33,7 +33,6 @@ typedef struct {
     int group_count;
 } Data;
 
-// Function prototypes
 void load_data(Data *data);
 void save_data(Data *data);
 int validate_password(const char *password);
@@ -47,7 +46,7 @@ void change_account_info(Data *data);
 void assign_user_to_group(Data *data);
 void cli_menu();
 
-// Load data from file
+
 void load_data(Data *data) {
     FILE *file = fopen(DATA_FILE, "r");
     data->user_count = 0;
@@ -84,7 +83,6 @@ void load_data(Data *data) {
     fclose(file);
 }
 
-// Save data to file
 void save_data(Data *data) {
     FILE *file = fopen(DATA_FILE, "w");
     if (!file) {
@@ -113,7 +111,7 @@ void save_data(Data *data) {
     fclose(file);
 }
 
-// Validate password
+
 int validate_password(const char *password) {
     if (strlen(password) < 8) return 0;
     int has_upper = 0, has_lower = 0, has_digit = 0;
@@ -135,7 +133,7 @@ int validate_date(const char *date) {
     return !reti;
 }
 
-// Add user
+
 void add_user(Data *data) {
     char username[MAX_STR], name[MAX_STR], email[MAX_STR], password[MAX_STR], expiration[MAX_STR];
 
@@ -189,7 +187,7 @@ void add_user(Data *data) {
     printf("User added.\n");
 }
 
-// Delete user
+
 void delete_user(Data *data) {
     char username[MAX_STR];
     printf("Enter username to delete: ");
@@ -229,7 +227,7 @@ void delete_user(Data *data) {
     printf("User deleted.\n");
 }
 
-// Add group
+
 void add_group(Data *data) {
     char group_name[MAX_STR];
     printf("Enter group name: ");
@@ -251,7 +249,7 @@ void add_group(Data *data) {
     printf("Group added.\n");
 }
 
-// Delete group
+
 void delete_group(Data *data) {
     char group_name[MAX_STR];
     printf("Enter group name to delete: ");
@@ -291,7 +289,7 @@ void delete_group(Data *data) {
     printf("Group deleted.\n");
 }
 
-// Change user info
+
 void change_user_info(Data *data) {
     char username[MAX_STR], name[MAX_STR], email[MAX_STR];
     printf("Enter username: ");
@@ -324,7 +322,7 @@ void change_user_info(Data *data) {
     printf("Info updated.\n");
 }
 
-// Change account info
+
 void change_account_info(Data *data) {
     char username[MAX_STR], password[MAX_STR], expiration[MAX_STR];
     printf("Enter username: ");
@@ -366,7 +364,7 @@ void change_account_info(Data *data) {
     printf("Account updated.\n");
 }
 
-// Assign user to group
+
 void assign_user_to_group(Data *data) {
     char username[MAX_STR], group_name[MAX_STR];
     printf("Enter username: ");
@@ -414,7 +412,7 @@ void assign_user_to_group(Data *data) {
     printf("User assigned to group.\n");
 }
 
-// CLI menu
+
 void cli_menu() {
     Data data;
     load_data(&data);
