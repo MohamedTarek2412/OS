@@ -37,8 +37,8 @@ Exit the program.
 .I users_data.txt
 - Stores user and group data in a plain text format.
 .SH AUTHOR
-Written by [Your Name].
+Written by OS TEAM.
 .SH BUGS
-Report bugs to [Your Email].
+Report bugs to moahmedtarek@gmail.com.
 .SH SEE ALSO
 No additional references.
