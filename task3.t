@@ -1,58 +1,44 @@
-.\" Man page for task3
-.TH TASK3 1 "May 08, 2025" "1.0" "User Manager Manual"
+.TH TASK3 1 "May 09, 2025" "1.0" "User Manager Manual"
 .SH NAME
-task3 \- A user and group management utility
+task3 \- A simple user and group management tool
 .SH SYNOPSIS
 .B task3
 .SH DESCRIPTION
-.B task3
-is a command-line and graphical utility for managing users and groups. It allows adding and deleting users and groups, changing user information, updating account details such as password expiration, and assigning users to groups.
+The \fBtask3\fR program provides a command-line interface to manage users and groups.
+It allows adding, deleting, modifying user information, changing account settings,
+and assigning users to groups. Data is stored in a file named \fIusers_data.txt\fR.
 .SH OPTIONS
-None. The program starts with an interactive menu.
-.SH MENU OPTIONS
+This program uses a menu interface with the following options:
 .TP
-.B 1. Add User
-Add a new user with username, full name, email, password, and optional password expiration date.
+.B 1
+Add a new user with username, name, email, password, and optional expiration date.
 .TP
-.B 2. Delete User
-Delete an existing user and remove them from all groups.
+.B 2
+Delete an existing user by username.
 .TP
-.B 3. Add Group
-Create a new group.
+.B 2
+Add a new group by name.
 .TP
-.B 4. Delete Group
-Delete an existing group and remove it from all users.
+.B 4
+Delete an existing group by name.
 .TP
-.B 5. Change User Information
-Update a user's full name or email.
+.B 5
+Change a user's name and/or email.
 .TP
-.B 6. Change Account Information
-Update a user's password or password expiration date.
+.B 6
+Change a user's password and/or expiration date.
 .TP
-.B 7. Assign User to Group
-Assign a user to an existing group.
+.B 7
+Assign a user to a specific group.
 .TP
-.B 8. Launch GUI
-Open the graphical user interface for user and group management.
-.TP
-.B 9. Exit
+.B 8
 Exit the program.
-.SH GUI
-The graphical interface provides tabs for:
-.TP
-- User Management: Add, delete, or update users.
-.TP
-- Group Management: Add or delete groups.
-.TP
-- Assign to Group: Assign users to groups.
 .SH FILES
-.TP
-.B user_manager_data.txt
-Stores user and group data in a text format.
+.I users_data.txt
+- Stores user and group data in a plain text format.
 .SH AUTHOR
-Written for a system administration project.
+Written by [Your Name].
 .SH BUGS
-Report bugs to the project maintainer.
+Report bugs to [Your Email].
 .SH SEE ALSO
-.BR useradd (8),
-.BR groupadd (8)
+No additional references.
