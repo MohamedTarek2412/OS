@@ -92,6 +92,20 @@ void assign_user_to_group() {
     scanf("%s", uname);
     printf("Enter group name: ");
     scanf("%s", gname);
+
+    int group_exists = 0;
+    for (int i = 0; i < group_count; i++) {
+        if (strcmp(groups[i].group_name, gname) == 0) {
+            group_exists = 1;
+            break;
+        }
+    }
+
+    if (!group_exists) {
+        printf("Group does not exist!\n");
+        return;
+    }
+
     for (int i = 0; i < user_count; i++) {
         if (strcmp(users[i].username, uname) == 0) {
             strcpy(users[i].group, gname);
@@ -99,6 +113,7 @@ void assign_user_to_group() {
             return;
         }
     }
+
     printf("User not found!\n");
 }
 
@@ -123,15 +138,32 @@ int main() {
         scanf("%d", &choice);
 
         switch (choice) {
-            case 1: add_user(); break;
-            case 2: delete_user(); break;
-            case 3: add_group(); break;
-            case 4: delete_group(); break;
-            case 5: change_user_info(); break;
-            case 6: assign_user_to_group(); break;
-            case 7: show_manual(); break;
-            case 8: printf("Goodbye!\n"); return 0;
-            default: printf("Invalid choice!\n");
+            case 1: 
+                add_user(); 
+                break;
+            case 2: 
+                delete_user();
+                break;
+            case 3:
+                add_group();
+                break;
+            case 4:
+                delete_group();
+                break;
+            case 5:
+             change_user_info();
+              break;
+            case 6: 
+                assign_user_to_group();
+                 break;
+            case 7: 
+                show_manual();
+                break;
+            case 8: 
+                printf("Goodbye!\n"); 
+                return 0;
+            default: 
+                printf("Invalid choice!\n");
         }
     }
 }
