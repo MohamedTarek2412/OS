@@ -73,18 +73,40 @@ void change_user_info() {
     char name[50];
     printf("Enter username to change: ");
     scanf("%s", name);
+
     for (int i = 0; i < user_count; i++) {
         if (strcmp(users[i].username, name) == 0) {
-            printf("New password: ");
-            scanf("%s", users[i].password);
-            printf("New expiration date: ");
-            scanf("%s", users[i].expiration);
+            char choice[10];
+
+            printf("Do you want to change username? (yes/no): ");
+            scanf("%s", choice);
+            if (strcmp(choice, "yes") == 0) {
+                printf("New username: ");
+                scanf("%s", users[i].username);
+            }
+
+            printf("Do you want to change password? (yes/no): ");
+            scanf("%s", choice);
+            if (strcmp(choice, "yes") == 0) {
+                printf("New password: ");
+                scanf("%s", users[i].password);
+            }
+
+            printf("Do you want to change expiration date? (yes/no): ");
+            scanf("%s", choice);
+            if (strcmp(choice, "yes") == 0) {
+                printf("New expiration date: ");
+                scanf("%s", users[i].expiration);
+            }
+
             printf("Updated!\n");
             return;
         }
     }
+
     printf("User not found!\n");
 }
+
 
 void assign_user_to_group() {
     char uname[50], gname[50];
