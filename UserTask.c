@@ -117,7 +117,7 @@ void assign_user_to_group() {
 
     int group_exists = 0;
     for (int i = 0; i < group_count; i++) {
-        if (strcmp(groups[i].group_name, gname) == 0) {
+        if (strcmp(groups[i].name, gname) == 0) {
             group_exists = 1;
             break;
         }
