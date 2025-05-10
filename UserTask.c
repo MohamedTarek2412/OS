@@ -2,25 +2,26 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Check if user exists
 int user_exists(const char *username) {
     char cmd[100] = "getent passwd ";
     strcat(cmd, username);
     return system(cmd) == 0;
 }
 
-// Check if group exists
 int group_exists(const char *group) {
     char cmd[100] = "getent group ";
     strcat(cmd, group);
     return system(cmd) == 0;
 }
 
-// Add user
 void add_user() {
     char username[50];
     char password[50];
-    char cmd[200];
+    char fullname[100];
+    char days[10];
+    char cmd[300];
+    char pass_cmd[300];
+    char chage_cmd[200];
 
     printf("Enter username to add: ");
     scanf("%s", username);
@@ -31,25 +32,40 @@ void add_user() {
         return;
     }
 
-    printf("Enter password for user: ");
+    printf("Enter full name: ");
+    fgets(fullname, sizeof(fullname), stdin);
+    fullname[strcspn(fullname, "\n")] = 0;
+
+    printf("Enter password: ");
     scanf("%s", password);
     while (getchar() != '\n');
 
-    strcpy(cmd, "sudo useradd ");
+    printf("Enter max password age (days): ");
+    scanf("%s", days);
+    while (getchar() != '\n');
+
+    strcpy(cmd, "sudo useradd -c '");
+    strcat(cmd, fullname);
+    strcat(cmd, "' ");
     strcat(cmd, username);
     system(cmd);
 
-    char pass_cmd[200] = "echo '";
+    strcpy(pass_cmd, "echo '");
     strcat(pass_cmd, username);
     strcat(pass_cmd, ":");
     strcat(pass_cmd, password);
     strcat(pass_cmd, "' | sudo chpasswd");
     system(pass_cmd);
 
-    printf("User '%s' created with password.\n", username);
+    strcpy(chage_cmd, "sudo chage -M ");
+    strcat(chage_cmd, days);
+    strcat(chage_cmd, " ");
+    strcat(chage_cmd, username);
+    system(chage_cmd);
+
+    printf("User '%s' created.\n", username);
 }
 
-// Delete user
 void delete_user() {
     char username[50];
     printf("Enter username to delete: ");
@@ -66,7 +82,6 @@ void delete_user() {
     system(cmd);
 }
 
-// Add group
 void add_group() {
     char group[50];
     printf("Enter group name to add: ");
@@ -83,7 +98,6 @@ void add_group() {
     system(cmd);
 }
 
-// Delete group
 void delete_group() {
     char group[50];
     printf("Enter group name to delete: ");
@@ -100,15 +114,14 @@ void delete_group() {
     system(cmd);
 }
 
-// Modify user info
 void modify_user_info() {
-    char username[50], fullname[100];
-    printf("Enter username to modify: ");
-    scanf("%s", username);
+    char old_username[50], new_username[50], fullname[100];
+    printf("Enter current username: ");
+    scanf("%s", old_username);
     while (getchar() != '\n');
 
-    if (!user_exists(username)) {
-        printf("User '%s' does not exist.\n", username);
+    if (!user_exists(old_username)) {
+        printf("User '%s' does not exist.\n", old_username);
         return;
     }
 
@@ -119,16 +132,26 @@ void modify_user_info() {
     char cmd[200] = "sudo usermod -c \"";
     strcat(cmd, fullname);
     strcat(cmd, "\" ");
-    strcat(cmd, username);
+    strcat(cmd, old_username);
     system(cmd);
+
+    printf("Enter new username (or press enter to skip): ");
+    fgets(new_username, sizeof(new_username), stdin);
+    new_username[strcspn(new_username, "\n")] = 0;
+
+    if (strlen(new_username) > 0) {
+        char rename_cmd[200] = "sudo usermod -l ";
+        strcat(rename_cmd, new_username);
+        strcat(rename_cmd, " ");
+        strcat(rename_cmd, old_username);
+        system(rename_cmd);
+    }
 }
 
-// Change account info (password expiration)
 void change_account_info() {
     char username[50];
-    int days;
-    char days_str[10];
-
+    char password[50];
+    char days[10];
     printf("Enter username: ");
     scanf("%s", username);
     while (getchar() != '\n');
@@ -138,19 +161,28 @@ void change_account_info() {
         return;
     }
 
-    printf("Enter max password age (days): ");
-    scanf("%d", &days);
+    printf("Enter new password: ");
+    scanf("%s", password);
     while (getchar() != '\n');
 
-    sprintf(days_str, "%d", days);  // Only exception for safe int-to-string
-    char cmd[100] = "sudo chage -M ";
-    strcat(cmd, days_str);
-    strcat(cmd, " ");
-    strcat(cmd, username);
-    system(cmd);
+    printf("Enter max password age (days): ");
+    scanf("%s", days);
+    while (getchar() != '\n');
+
+    char pass_cmd[200] = "echo '";
+    strcat(pass_cmd, username);
+    strcat(pass_cmd, ":");
+    strcat(pass_cmd, password);
+    strcat(pass_cmd, "' | sudo chpasswd");
+    system(pass_cmd);
+
+    char chage_cmd[100] = "sudo chage -M ";
+    strcat(chage_cmd, days);
+    strcat(chage_cmd, " ");
+    strcat(chage_cmd, username);
+    system(chage_cmd);
 }
 
-// Assign user to group
 void assign_user_to_group() {
     char username[50], group[50];
     printf("Enter username: ");
@@ -178,24 +210,7 @@ void assign_user_to_group() {
     system(cmd);
 }
 
-// Print Man Page
-void print_man_page() {
-    printf("Usage: ./user_manager\n");
-    printf("Description: Manage users and groups via menu interface.\n");
-    printf("Options:\n");
-    printf("1. Add User - Add a new user to the system.\n");
-    printf("2. Delete User - Remove an existing user from the system.\n");
-    printf("3. Add Group - Create a new group on the system.\n");
-    printf("4. Delete Group - Remove an existing group from the system.\n");
-    printf("5. Modify User Info - Change user's full name or description.\n");
-    printf("6. Change Account Info (Password Expiration) - Set password expiration limits.\n");
-    printf("7. Assign User to Group - Add a user to an existing group.\n");
-    printf("8. Exit - Exit the program.\n");
-}
-
-// Main menu
 int main(int argc, char *argv[]) {
-    // Display man page if user requests --help
     if (argc > 1 && strcmp(argv[1], "--help") == 0) {
         print_man_page();
         return 0;
@@ -214,7 +229,7 @@ int main(int argc, char *argv[]) {
         printf("8. Exit\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
-        while (getchar() != '\n'); // clear input buffer
+        while (getchar() != '\n');
 
         switch (choice) {
             case 1: add_user(); break;
