@@ -1,13 +1,27 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+int group_exists(const char *group) {
+    char cmd[100];
+    sprintf(cmd, "getent group %s > /dev/null 2>&1", group);
+    return system(cmd) == 0;
+}
+
+int user_exists(const char *username) {
+    char cmd[100];
+    sprintf(cmd, "id %s > /dev/null 2>&1", username);
+    return system(cmd) == 0;
+}
 
 void add_user() {
     char username[50];
     printf("Enter username to add: ");
     scanf("%s", username);
-    char cmd[100];
-    snprintf(cmd, sizeof(cmd), "sudo useradd %s", username);
+    while (getchar() != '\n'); // flush input
+    char cmd[100] = "sudo useradd ";
+    strcat(cmd, username);
     system(cmd);
 }
 
@@ -15,39 +29,61 @@ void delete_user() {
     char username[50];
     printf("Enter username to delete: ");
     scanf("%s", username);
-    char cmd[100];
-    snprintf(cmd, sizeof(cmd), "sudo userdel %s", username);
-    system(cmd);
+    while (getchar() != '\n');
+    if (user_exists(username)) {
+        char cmd[100] = "sudo userdel ";
+        strcat(cmd, username);
+        system(cmd);
+    } else {
+        printf("User does not exist!\n");
+    }
 }
 
 void add_group() {
     char group[50];
     printf("Enter group name to add: ");
     scanf("%s", group);
-    char cmd[100];
-    snprintf(cmd, sizeof(cmd), "sudo groupadd %s", group);
-    system(cmd);
+    while (getchar() != '\n');
+    if (!group_exists(group)) {
+        char cmd[100] = "sudo groupadd ";
+        strcat(cmd, group);
+        system(cmd);
+    } else {
+        printf("Group already exists!\n");
+    }
 }
 
 void delete_group() {
     char group[50];
     printf("Enter group name to delete: ");
     scanf("%s", group);
-    char cmd[100];
-    snprintf(cmd, sizeof(cmd), "sudo groupdel %s", group);
-    system(cmd);
+    while (getchar() != '\n');
+    if (group_exists(group)) {
+        char cmd[100] = "sudo groupdel ";
+        strcat(cmd, group);
+        system(cmd);
+    } else {
+        printf("Group does not exist!\n");
+    }
 }
 
 void modify_user_info() {
     char username[50], fullname[100];
     printf("Enter username to modify: ");
     scanf("%s", username);
-    getchar(); // flush newline
+    while (getchar() != '\n'); // flush newline
+    if (!user_exists(username)) {
+        printf("User does not exist!\n");
+        return;
+    }
     printf("Enter new full name: ");
     fgets(fullname, sizeof(fullname), stdin);
-    fullname[strcspn(fullname, "\n")] = 0; // remove newline
-    char cmd[200];
-    snprintf(cmd, sizeof(cmd), "sudo usermod -c \"%s\" %s", fullname, username);
+    fullname[strcspn(fullname, "\n")] = 0;
+
+    char cmd[200] = "sudo usermod -c \"";
+    strcat(cmd, fullname);
+    strcat(cmd, "\" ");
+    strcat(cmd, username);
     system(cmd);
 }
 
@@ -56,10 +92,23 @@ void change_account_info() {
     int days;
     printf("Enter username: ");
     scanf("%s", username);
+    while (getchar() != '\n');
+    if (!user_exists(username)) {
+        printf("User does not exist!\n");
+        return;
+    }
     printf("Enter max password age (days): ");
     scanf("%d", &days);
+    while (getchar() != '\n');
+
     char cmd[100];
-    snprintf(cmd, sizeof(cmd), "sudo chage -M %d %s", days, username);
+    char daystr[10];
+    sprintf(daystr, "%d", days);
+
+    strcpy(cmd, "sudo chage -M ");
+    strcat(cmd, daystr);
+    strcat(cmd, " ");
+    strcat(cmd, username);
     system(cmd);
 }
 
@@ -67,14 +116,33 @@ void assign_user_to_group() {
     char username[50], group[50];
     printf("Enter username: ");
     scanf("%s", username);
+    while (getchar() != '\n');
+    if (!user_exists(username)) {
+        printf("User does not exist!\n");
+        return;
+    }
+
     printf("Enter group name: ");
     scanf("%s", group);
-    char cmd[100];
-    snprintf(cmd, sizeof(cmd), "sudo usermod -aG %s %s", group, username);
-    system(cmd);
+    while (getchar() != '\n');
+    if (group_exists(group)) {
+        char cmd[100] = "sudo usermod -aG ";
+        strcat(cmd, group);
+        strcat(cmd, " ");
+        strcat(cmd, username);
+        system(cmd);
+    } else {
+        printf("Group does not exist!\n");
+    }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    if (argc > 1 && strcmp(argv[1], "--help") == 0) {
+        printf("Usage: ./task3\n");
+        printf("A simple user & group manager menu program. Requires root access.\n");
+        return 0;
+    }
+
     int choice;
     do {
         printf("\n--- User Manager Menu ---\n");
@@ -88,6 +156,7 @@ int main() {
         printf("8. Exit\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
+        while (getchar() != '\n'); 
 
         switch (choice) {
             case 1: add_user(); break;
