@@ -21,7 +21,7 @@ class PrioritySchedulingApp:
         self.input_frame = ttk.Frame(frame)
         self.input_frame.grid(row=1, column=0, columnspan=3, pady=10)
 
-        self.tree = ttk.Treeview(frame, columns=("PID", "Arrival", "Burst", "Priority", "Waiting", "Turnaround", "Response"), show="headings")
+        self.tree = ttk.Treeview(frame, columns=("PID", "Burst", "Priority", "Waiting", "Turnaround", "Response"), show="headings")
         for col in self.tree["columns"]:
             self.tree.heading(col, text=col)
             self.tree.column(col, width=80)
@@ -48,33 +48,30 @@ class PrioritySchedulingApp:
             widget.destroy()
         self.entries = []
 
-        headers = ["PID", "Arrival", "Burst", "Priority"]
+        headers = ["PID", "Burst", "Priority"]
         for j, header in enumerate(headers):
             ttk.Label(self.input_frame, text=header).grid(row=0, column=j, padx=5)
         for i in range(num):
             pid = f"P{i+1}"
             ttk.Label(self.input_frame, text=pid).grid(row=i+1, column=0, padx=5)
-            arrival = tk.StringVar()
             burst = tk.StringVar()
             priority = tk.StringVar()
-            ttk.Entry(self.input_frame, textvariable=arrival, width=5).grid(row=i+1, column=1)
-            ttk.Entry(self.input_frame, textvariable=burst, width=5).grid(row=i+1, column=2)
-            ttk.Entry(self.input_frame, textvariable=priority, width=5).grid(row=i+1, column=3)
-            self.entries.append((pid, arrival, burst, priority))
+            ttk.Entry(self.input_frame, textvariable=burst, width=5).grid(row=i+1, column=1)
+            ttk.Entry(self.input_frame, textvariable=priority, width=5).grid(row=i+1, column=2)
+            self.entries.append((pid, burst, priority))
 
     def run_simulation(self):
         self.processes = []
-        for pid, arrival_var, burst_var, priority_var in self.entries:
+        for pid, burst_var, priority_var in self.entries:
             try:
-                arrival = float(arrival_var.get())
                 burst = float(burst_var.get())
                 priority = float(priority_var.get())
-                if arrival < 0 or burst <= 0 or priority < 0:
+                if burst <= 0 or priority < 0:
                     raise ValueError
             except ValueError:
-                messagebox.showerror("Error", f"Invalid input for {pid}. Use non-negative numbers (burst > 0).")
+                messagebox.showerror("Error", f"Invalid input for {pid}. Use burst > 0 and non-negative priority.")
                 return
-            self.processes.append({"pid": pid, "arrival": arrival, "burst": burst, "priority": priority})
+            self.processes.append({"pid": pid, "burst": burst, "priority": priority})
 
         if not self.processes:
             messagebox.showerror("Error", "No processes to simulate")
@@ -83,32 +80,23 @@ class PrioritySchedulingApp:
         current_time = 0
         completed = []
         gantt = []
-        first_run = {}
 
-        while len(completed) < len(self.processes):
-            ready = [p for p in self.processes if p["arrival"] <= current_time and p not in completed]
-            if ready:
-                current_process = min(ready, key=lambda x: x["priority"])
-                if current_process["pid"] not in first_run:
-                    first_run[current_process["pid"]] = current_time
-                start_time = current_time
-                current_time += current_process["burst"]
-                gantt.append((current_process["pid"], start_time, current_time))
-                current_process["completion"] = current_time
-                current_process["turnaround"] = current_time - current_process["arrival"]
-                current_process["waiting"] = current_process["turnaround"] - current_process["burst"]
-                current_process["response"] = first_run[current_process["pid"]] - current_process["arrival"]
-                completed.append(current_process)
-            else:
-                # 🔸 حالة IDLE لما مفيش عملية جاهزة
-                idle_start = current_time
-                current_time += 1
-                gantt.append(("IDLE", idle_start, current_time))
+        sorted_procs = sorted(self.processes, key=lambda x: x["priority"])
+
+        for p in sorted_procs:
+            start_time = current_time
+            current_time += p["burst"]
+            end_time = current_time
+            p["waiting"] = start_time
+            p["turnaround"] = p["waiting"] + p["burst"]
+            p["response"] = p["waiting"]
+            gantt.append((p["pid"], start_time, end_time))
+            completed.append(p)
 
         self.tree.delete(*self.tree.get_children())
-        for p in sorted(completed, key=lambda x: x["pid"]):
+        for p in completed:
             self.tree.insert("", "end", values=(
-                p["pid"], p["arrival"], p["burst"], p["priority"],
+                p["pid"], p["burst"], p["priority"],
                 f"{p['waiting']:.1f}", f"{p['turnaround']:.1f}", f"{p['response']:.1f}"
             ))
 
@@ -124,7 +112,7 @@ class PrioritySchedulingApp:
         for pid, start, end in gantt:
             x1 = start * scale
             x2 = end * scale
-            color = "lightblue" if pid != "IDLE" else "lightgray"
+            color = "lightblue"
             self.gantt_canvas.create_rectangle(x1, y-10, x2, y+10, fill=color)
             self.gantt_canvas.create_text((x1+x2)/2, y, text=pid)
             self.gantt_canvas.create_text(x1, y+20, text=f"{start:.1f}")
