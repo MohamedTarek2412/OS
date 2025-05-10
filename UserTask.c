@@ -8,6 +8,7 @@ int user_exists(const char *username) {
     return system(cmd) == 0;
 }
 
+// Check if group exists
 int group_exists(const char *group) {
     char cmd[100] = "getent group ";
     strcat(cmd, group);
@@ -208,6 +209,20 @@ void assign_user_to_group() {
     strcat(cmd, " ");
     strcat(cmd, username);
     system(cmd);
+}
+
+void print_man_page() {
+    printf("Usage: ./user_manager\n");
+    printf("Description: Manage users and groups via menu interface.\n");
+    printf("Options:\n");
+    printf("1. Add User - Add a new user with name, password, and expiration date.\n");
+    printf("2. Delete User - Remove an existing user from the system.\n");
+    printf("3. Add Group - Create a new group on the system.\n");
+    printf("4. Delete Group - Remove an existing group from the system.\n");
+    printf("5. Modify User Info - Change user's full name and username.\n");
+    printf("6. Change Account Info (Password Expiration) - Update password and expiration.\n");
+    printf("7. Assign User to Group - Add a user to an existing group.\n");
+    printf("8. Exit - Exit the program.\n");
 }
 
 int main(int argc, char *argv[]) {
